@@ -1,0 +1,41 @@
+body{
+  font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+
+  color:black;
+  background-color: white;
+
+}
+
+.submitButton{
+  height: 60px;
+  width: 25%;
+  margin-top: 20px;
+  background-color: #1abc9c;
+  border-style:solid;
+  border-color:#ddd;
+  border-radius:10px;
+  border-width:2px;
+  color:white;
+  font-size:20px;
+  background-size: 100% 200%;
+  background-image: linear-gradient(to bottom, #1abc9c 50%, #e74c3c 50%);
+  transition: background-position .25s;
+  cursor: pointer;
+  text-decoration: none;
+
+}
+.submitButton:hover{
+  background-position: 0 100%;
+
+
+}
+
+.footer{
+  padding-top: 20px;
+  position: inherit;
+  width: auto;
+  bottom: 25;
+  left: 0;
+  right: 0;
+  text-align: center;
+}
