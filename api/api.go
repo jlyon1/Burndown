@@ -64,11 +64,24 @@ type Point struct {
 	Value int
 }
 
+type Dataset struct{
+	Label string
+	Points []Point
+}
+
+type Chart struct{
+	Data []Dataset
+}
+
 func reverse(ss []Issue) {
 	last := len(ss) - 1
 	for i := 0; i < len(ss)/2; i++ {
 		ss[i], ss[last-i] = ss[last-i], ss[i]
 	}
+}
+
+func (api *API) GetIssueChart(data string){
+	
 }
 
 func (api *API) ValidHandler(w http.ResponseWriter, r *http.Request){

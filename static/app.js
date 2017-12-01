@@ -24,13 +24,13 @@ Vue.component('bar-chart', {
   methods: {
     test: function(){
       let data = this.chartData;
-      text = []
-      vals = []
-      for (var i = 0; i < data.length; i ++){
-        text.push(data[i].Label);
-        vals.push(data[i].Value);
-
-      }
+      text = ["asdf"]
+      vals = [1]
+      // for (var i = 0; i < data.length; i ++){
+      //   text.push(data[i].Label);
+      //   vals.push(data[i].Value);
+      //
+      // }
       this.renderChart({
         labels: text,
         datasets: [
@@ -67,12 +67,16 @@ Vue.component("repo-card",{
 
 
 Vue.component("issue-card",{
-  template: `<div><div style="height: 300px;" class="card">
+  template: `<div><div style="height: auto;" class="card">
+  <span style="font-size: 18px" class="repoName">Issues: <span v-bind:style="indic">????</span> <span>| open Issues: </span><span>| average open time:</span></span>
+  <div style="height:20px;margin-top:20px;">
+  aldsfjl
+  </div>
   </div>
   </div>`,
   data (){
     return {
-
+      indic: {backgroundColor:"#f1c40f"}
     }
   }
 })
@@ -117,10 +121,8 @@ Vue.component("repo-info",{
               el.render = true;
               el.vis = false;
               el.repoInfo = data;
-
             }
           });
-
         }
       }
     }
@@ -142,7 +144,7 @@ Vue.component("get-repo",{
       textStyle: {textAlign:"center",position:"absolute",width:"auto",left:"0",right:"0",top:"250px"},
       inputStyle: {height: "50px",textAlign:"center", borderWidth:"1px",borderStyle:"solid",borderRadius:"5px",borderColor:"#1abc9c",width:"50%",fontSize:"30px",padding:"30px"},
       repos: "wtg/shuttletracker",
-      textboxText:""
+      textboxText:"wtg/shuttletracker"
     }
   },
   methods: {
@@ -164,6 +166,9 @@ Vue.component("get-repo",{
     }
 
   },
+  mounted(){
+    this.update();
+  }
 
 });
 
@@ -174,7 +179,7 @@ Vue.component("titlebar",{
     return{
       titleStyle: {position:"absolute",backgroundColor:"#1abc9c",height:"50px",width:"auto",top:"1",left:"0",right:"0",color:"white"},
       paragraphStyle: {float: "left",height:"50px",lineHeight:"50px",verticalAlign:"center",paddingLeft:"30px",margin:"0"},
-      titleText: "BurnDown 🔥"
+      titleText: "🔥⬇️"
     }
   }
 
