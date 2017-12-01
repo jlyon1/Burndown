@@ -5,10 +5,13 @@ import (
 	"github.com/gorilla/mux"
 	"net/http"
 	"time"
+	"fmt"
+	"burndown/database"
 	"github.com/bradfitz/slice"
 )
 
 type API struct {
+	Database database.DB
 }
 
 type Repo struct {
@@ -52,32 +55,56 @@ func reverse(ss []Issue) {
     }
 }
 
-func (api *API) GetRepoHandler(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	url := "https://api.github.com/repos/" + vars["repo"] + "/" + vars["owner"] + "/issues?state=all"
-	var issues []Issue
-
-	resp, _ := http.Get(url)
-	reader := json.NewDecoder(resp.Body)
-	reader.Decode(&issues)
-
-	for idx, _ := range issues{
-		issues[idx].Weight = 1;
-	}
-
+func (api *API) GetRepo(data string) []Point{
+	url := "https://api.github.com/repos/" + data + "/issues?state=all"
+	_ = url
 	var labels []Point
-
-	for _, issue := range issues {
-			labels = append(labels, Point{Label: issue.Created,Value: issue.Weight})
-
-		if(issue.State == "closed"){
-				labels = append(labels, Point{Label: issue.Closed,Value: - issue.Weight})
+	res := api.Database.Find(data);
+	if res != ""{
+		byteRes := []byte(res)
+		err:= json.Unmarshal(byteRes,&labels)
+		if err != nil{
+			fmt.Printf("%v",err.Error())
+		}
+		fmt.Printf("\nCacheload\n");
+	}else{
+		var issues []Issue
+		resp, err := http.Get(url)
+		if err != nil{
+			fmt.Printf("%v",err.Error())
 
 		}
+		reader := json.NewDecoder(resp.Body)
+		reader.Decode(&issues)
+		for idx, _ := range issues{
+			issues[idx].Weight = 1;
+		}
+
+		//var labels []Point
+
+		for _, issue := range issues {
+			labels = append(labels, Point{Label: issue.Created,Value: issue.Weight})
+
+			if(issue.State == "closed"){
+				labels = append(labels, Point{Label: issue.Closed,Value: - issue.Weight})
+
+			}
+		}
+		slice.Sort(labels, func(i,j int) bool {
+			return labels[i].Label.After(labels[j].Label)
+		})
+		api.Database.Set(data,labels)
+		api.Database.Expire(data,100);
 	}
-	slice.Sort(labels, func(i,j int) bool {
-		return labels[i].Label.After(labels[j].Label)
-	})
+
+	return labels;
+}
+
+func (api *API) GetRepoHandler(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	repoString := vars["owner"] + "/" + vars["repo"]
+	labels := api.GetRepo(repoString)
+	fmt.Printf("ASDF %d\n",len(labels));
 	WriteJSON(w, labels)
 }
 

@@ -61,7 +61,7 @@ Vue.component("repo-info",{
       repoData: "",
       repoDataOld: "blank",
       chartInfo: "blank",
-      render: false,
+      render: true,
       vis: false,
 
     }
@@ -71,6 +71,7 @@ Vue.component("repo-info",{
       if(refresh){
         this.vis = true;
         refresh = false;
+        this.render = false;
       }
       let el = this;
       this.repoData = repoData;
@@ -80,7 +81,6 @@ Vue.component("repo-info",{
         if(this.repoData !== ""){
           this.repoDataOld = this.repoData;
           $.get("/get/" + repoData,function(data){
-            console.log(data);
             el.render = true;
             el.vis = false;
             el.chartInfo = data;
