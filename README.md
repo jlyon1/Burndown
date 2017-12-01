@@ -12,4 +12,6 @@ making productive changes.
 
 * Install Redis
 
+* Launch redis with default configuration (For now)
+
 * Launch with `go run main.go`
