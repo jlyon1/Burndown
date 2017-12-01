@@ -6,10 +6,12 @@ making productive changes.
 
 ## Installation
 
-Clone the repository into a valid go project path ie `git clone https://github.com/jlyon1/Burndown.git /home/jlyon1/burndown/src/burndown`
+* Clone the repository into a valid go project path ie `git clone https://github.com/jlyon1/Burndown.git /home/jlyon1/burndown/src/burndown`
 
-Run `go get`
+* Run `go get`
 
-Install Redis
+* Install Redis
 
-Launch with `go run main.go`
+* Launch redis with default configuration (For now)
+
+* Launch with `go run main.go`
