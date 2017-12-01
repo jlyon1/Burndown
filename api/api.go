@@ -84,7 +84,6 @@ func (api *API) GetRepo(data string) Repository {
 		}
 	} else {
 
-		var repo Repository
 		resp, err := http.Get(url)
 		if err != nil {
 			fmt.Printf("%v", err.Error())

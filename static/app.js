@@ -69,7 +69,7 @@ Vue.component("repo-card",{
 Vue.component("repo-info",{
   template: `<div>
   <div class="pulsate" style="width:20px;height:20px;background-color:blue;left: 0; right: 0; margin: 0 auto;" v-if=vis></div>
-  <repo-card v-if=render v-bind:data=repoInfo ></repo-card>
+  <repo-card v-if="render && repoInfo.full_name != ''" v-bind:data=repoInfo ></repo-card>
   </div>`,
   data (){
     return {
