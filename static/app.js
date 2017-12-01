@@ -18,19 +18,30 @@ Vue.component('line-chart', {
   props: ["chartData"],
   data (){
     return{
-      labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+      labels: [],
     }
   },
   methods: {
     test: function(){
       console.log(this.chartData);
       let data = this.chartData;
+      text = []
+      vals = []
+      for (var i = 0; i < data.length; i ++){
+        text.push(data[i].Label);
+        if(i > 0){
+          vals.push(vals[i-1] + data[i].Value);
+          console.log(vals[i]);
+        }else{
+          vals.push(data[i].Value);
+        }
+      }
       this.renderChart({
-        labels: data.Labels,
+        labels: text,
         datasets: [
           {
             backgroundColor: '#f87979',
-            data: data.Value,
+            data: vals,
           }
         ]
       }, {responsive: true, maintainAspectRatio: false});

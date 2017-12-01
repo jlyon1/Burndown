@@ -5,6 +5,7 @@ import (
 	"github.com/gorilla/mux"
 	"net/http"
 	"time"
+	"github.com/bradfitz/slice"
 )
 
 type API struct {
@@ -39,9 +40,10 @@ type Repository struct {
 }
 
 type Point struct{
-	Labels []int
-	Value []int
+	Label time.Time
+	Value int
 }
+
 
 func reverse(ss []Issue) {
     last := len(ss) - 1
@@ -54,31 +56,29 @@ func (api *API) GetRepoHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	url := "https://api.github.com/repos/" + vars["repo"] + "/" + vars["owner"] + "/issues?state=all"
 	var issues []Issue
+
 	resp, _ := http.Get(url)
 	reader := json.NewDecoder(resp.Body)
 	reader.Decode(&issues)
-	reverse(issues)
+
 	for idx, _ := range issues{
 		issues[idx].Weight = 1;
-		if(issues[idx].State == "closed" && idx != 0){
-			issues[idx].Weight = -issues[idx].Weight
+	}
+
+	var labels []Point
+
+	for _, issue := range issues {
+			labels = append(labels, Point{Label: issue.Created,Value: issue.Weight})
+
+		if(issue.State == "closed"){
+				labels = append(labels, Point{Label: issue.Closed,Value: - issue.Weight})
+
 		}
 	}
-	var labels []int
-	var values []int
-	for idx, issue := range issues {
-		labels = append(labels, issue.Number)
-		if(idx > 0){
-			values = append(values, issue.Weight + values[idx - 1])
-		}else{
-			values = append(values, issue.Weight)
-		}
-	}
-	data := Point{
-		Labels: labels,
-		Value: values,
-	}
-	WriteJSON(w, data)
+	slice.Sort(labels, func(i,j int) bool {
+		return labels[i].Label.After(labels[j].Label)
+	})
+	WriteJSON(w, labels)
 }
 
 func (api *API) IndexHandler(w http.ResponseWriter, r *http.Request) {
