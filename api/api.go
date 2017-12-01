@@ -71,6 +71,32 @@ func reverse(ss []Issue) {
 	}
 }
 
+func (api *API) ValidHandler(w http.ResponseWriter, r *http.Request){
+
+	vars := mux.Vars(r)
+	repoString := vars["owner"] + "/" + vars["repo"]
+	res := api.Database.Find(repoString)
+	url := "https://api.github.com/repos/" + repoString
+	if(res != ""){
+		WriteJSON(w,"true");
+	}else{
+		resp, err := http.Get(url)
+		var repo Repository
+		if err != nil {
+			fmt.Printf("%v", err.Error())
+		}
+		reader := json.NewDecoder(resp.Body)
+		reader.Decode(&repo)
+		if(repo.Name != ""){
+			WriteJSON(w,"true")
+			api.GetRepo(repoString)
+		}else{
+			WriteJSON(w,"false")
+		}
+	}
+
+}
+
 func (api *API) GetRepo(data string) Repository {
 	url := "https://api.github.com/repos/" + data
 	_ = url
@@ -98,6 +124,22 @@ func (api *API) GetRepo(data string) Repository {
 		}
 		reader = json.NewDecoder(resp.Body)
 		reader.Decode(&repo.Issues)
+
+		commits := url + "/commits?state=all"
+		resp, err = http.Get(commits)
+		if err != nil {
+			fmt.Printf("%v", err.Error())
+		}
+		reader = json.NewDecoder(resp.Body)
+		reader.Decode(&repo.Commits)
+
+		Pulls := url + "/pulls?state=all"
+		resp, err = http.Get(Pulls)
+		if err != nil {
+			fmt.Printf("%v", err.Error())
+		}
+		reader = json.NewDecoder(resp.Body)
+		reader.Decode(&repo.Pulls)
 
 		api.Database.Set(data, repo)
 		api.Database.Expire(data, 10000)

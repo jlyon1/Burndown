@@ -13,7 +13,7 @@ Vue.component("header-text",{
   }
 });
 
-Vue.component('line-chart', {
+Vue.component('bar-chart', {
   extends: VueChartJs.Bar,
   props: ["chartData"],
   data (){
@@ -23,13 +23,11 @@ Vue.component('line-chart', {
   },
   methods: {
     test: function(){
-      console.log(this.chartData);
       let data = this.chartData;
       text = []
       vals = []
       for (var i = 0; i < data.length; i ++){
         text.push(data[i].Label);
-
         vals.push(data[i].Value);
 
       }
@@ -53,11 +51,12 @@ Vue.component('line-chart', {
 });
 
 Vue.component("repo-card",{
-  template: `<div><a v-bind:href=data.url<div class="card">
+  template: `<div><a style="text-decoration:none; color: black;" v-bind:href=data.url> <div class="card">
   <img class="avatar" v-bind:src=data.owner.avatar_url></img>
   <a class="repoName">{{data.full_name}}</a>
   <p>Project Status: Who knows?</p>
-  </div></div>`,
+  <p stype="color:#aaa;">Loaded: {{data.Issues.length}} issues, {{data.Commits.length}} commits, and {{data.Pulls.length}} Pull Requests</p>
+  </div></a></div>`,
   props: ['data'],
   data (){
     return {
@@ -66,10 +65,24 @@ Vue.component("repo-card",{
   }
 })
 
+
+Vue.component("issue-card",{
+  template: `<div><div style="height: 300px;" class="card">
+  </div>
+  </div>`,
+  data (){
+    return {
+
+    }
+  }
+})
+
+
 Vue.component("repo-info",{
   template: `<div>
   <div class="pulsate" style="width:20px;height:20px;background-color:blue;left: 0; right: 0; margin: 0 auto;" v-if=vis></div>
   <repo-card v-if="render && repoInfo.full_name != ''" v-bind:data=repoInfo ></repo-card>
+  <issue-card v-if="render && repoInfo.full_name != ''"></issue-card>
   </div>`,
   data (){
     return {
@@ -86,12 +99,14 @@ Vue.component("repo-info",{
       if(refresh){
         this.vis = true;
         refresh = false;
+        this.repoData = ""
         this.render = false;
       }
       let el = this;
       this.repoData = repoData;
-      if(this.repoData == this.repoDataOld){
-        // console.log("woo
+      if(this.repoData == this.repoDataOld && this.render){
+        console.log(this.repoData);
+
       }else{
         if(this.repoData !== ""){
           this.repoDataOld = this.repoData;
@@ -137,9 +152,13 @@ Vue.component("get-repo",{
       el.inputStyle.borderColor = "#e74c3c";
       timeout = setTimeout(function () {
         if(el.textboxText.indexOf("/") != -1){
-          refresh = true;
-          el.inputStyle.borderColor = "#1abc9c";
-          repoData = el.textboxText;
+          $.get("/valid/" + el.textboxText,function(data){
+            refresh = true;
+            if(data == "true"){
+              el.inputStyle.borderColor = "#1abc9c";
+              repoData = el.textboxText;
+            }
+          });
         }
       }, 500);
     }
