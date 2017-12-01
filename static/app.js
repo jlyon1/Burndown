@@ -81,9 +81,14 @@ Vue.component("repo-info",{
         if(this.repoData !== ""){
           this.repoDataOld = this.repoData;
           $.get("/get/" + repoData,function(data){
-            el.render = true;
-            el.vis = false;
-            el.chartInfo = data;
+            if(data == null){
+              
+            }else{
+              el.render = true;
+              el.vis = false;
+              el.chartInfo = data;
+
+            }
           });
 
         }
