@@ -39,3 +39,25 @@ body{
   right: 0;
   text-align: center;
 }
+
+.pulsate {
+    -webkit-animation: pulsate 5s ease-out;
+    -webkit-animation-iteration-count: infinite;
+    opacity: 1;
+}
+@-webkit-keyframes pulsate {
+    0% {
+        opacity: 100%;
+        -webkit-transform:scale(.75);
+
+    }
+    50% {
+        opacity: 70%;
+        -webkit-transform:scale(1);
+    }
+    100% {
+        opacity: 100%;
+        -webkit-transform:scale(.75);
+
+    }
+}

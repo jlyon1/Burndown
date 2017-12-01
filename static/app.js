@@ -15,7 +15,7 @@ Vue.component("header-text",{
 
 Vue.component('line-chart', {
   extends: VueChartJs.Line,
-  props: ["data"],
+  props: ["chartData"],
   data (){
     return{
       labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
@@ -23,45 +23,56 @@ Vue.component('line-chart', {
   },
   methods: {
     test: function(){
+      console.log(this.chartData);
+      let data = this.chartData;
+      this.renderChart({
+        labels: data.Labels,
+        datasets: [
+          {
+            backgroundColor: '#f87979',
+            data: data.Value,
+          }
+        ]
+      }, {responsive: true, maintainAspectRatio: false});
     }
   },
   mounted () {
-    this.renderChart({
-      labels: this.labels,
-      datasets: [
-        {
-          label: 'Burndown',
-          backgroundColor: '#f87979',
-          data: [30, 20, 30, 20, 10, 5, 1]
-        }
-      ]
-    }, {responsive: true, maintainAspectRatio: false});
 
+    this.test();
   }
+
 });
 
 Vue.component("repo-info",{
-  template: `<div><line-chart v-if=render></line-chart></div>`,
+  template: `<div><line-chart v-if=render v-bind:chartData="chartInfo"></line-chart><div class="pulsate" style="width:20px;height:20px;background-color:blue;left: 0; right: 0; margin: 0 auto;" v-if=vis></div></div>`,
   data (){
     return {
       repoData: "",
-      repoDataOld: "asdf",
-      other: "adf",
+      repoDataOld: "blank",
+      chartInfo: "blank",
       render: false,
+      vis: false,
+
     }
   },
   methods: {
     update: function(){
+      if(refresh){
+        this.vis = true;
+        refresh = false;
+      }
       let el = this;
       this.repoData = repoData;
       if(this.repoData == this.repoDataOld){
-
+        // console.log("woo
       }else{
         if(this.repoData !== ""){
-          this.render = true;
           this.repoDataOld = this.repoData;
-          $.get("https://api.github.com/repos/" + repoData,function(data){
-            el.other = data;
+          $.get("/get/" + repoData,function(data){
+            console.log(data);
+            el.render = true;
+            el.vis = false;
+            el.chartInfo = data;
           });
 
         }
@@ -89,6 +100,7 @@ Vue.component("get-repo",{
   },
   methods: {
     update: function(){
+      refresh = true;
       repoData = this.textboxText;
     }
   },
