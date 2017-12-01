@@ -66,21 +66,17 @@ func (api *API) GetRepo(data string) []Point{
 		if err != nil{
 			fmt.Printf("%v",err.Error())
 		}
-		fmt.Printf("\nCacheload\n");
 	}else{
 		var issues []Issue
 		resp, err := http.Get(url)
 		if err != nil{
 			fmt.Printf("%v",err.Error())
-
 		}
 		reader := json.NewDecoder(resp.Body)
 		reader.Decode(&issues)
 		for idx, _ := range issues{
 			issues[idx].Weight = 1;
 		}
-
-		//var labels []Point
 
 		for _, issue := range issues {
 			labels = append(labels, Point{Label: issue.Created,Value: issue.Weight})

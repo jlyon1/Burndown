@@ -40,6 +40,7 @@ Vue.component('line-chart', {
         labels: text,
         datasets: [
           {
+            label: "",
             backgroundColor: '#f87979',
             data: vals,
           }
@@ -61,7 +62,7 @@ Vue.component("repo-info",{
       repoData: "",
       repoDataOld: "blank",
       chartInfo: "blank",
-      render: true,
+      render: false,
       vis: false,
 
     }
@@ -82,7 +83,7 @@ Vue.component("repo-info",{
           this.repoDataOld = this.repoData;
           $.get("/get/" + repoData,function(data){
             if(data == null){
-              
+
             }else{
               el.render = true;
               el.vis = false;
@@ -100,9 +101,10 @@ Vue.component("repo-info",{
   }
 });
 
+var timeout = null;
 Vue.component("get-repo",{
   template: `<div v-bind:style=textStyle>
-              <input v-bind:style=inputStyle @keyup.enter=update v-bind:placeholder=repos v-model=textboxText>
+              <input v-bind:style=inputStyle @keyup=update v-bind:placeholder=repos v-model=textboxText>
               </input>
 
               </div>`,
@@ -116,9 +118,18 @@ Vue.component("get-repo",{
   },
   methods: {
     update: function(){
-      refresh = true;
-      repoData = this.textboxText;
+      let el = this;
+      clearTimeout(timeout);
+      el.inputStyle.borderColor = "#e74c3c";
+      timeout = setTimeout(function () {
+        if(el.textboxText.indexOf("/") != -1){
+          refresh = true;
+          el.inputStyle.borderColor = "#1abc9c";
+          repoData = el.textboxText;
+        }
+      }, 500);
     }
+
   },
 
 });
