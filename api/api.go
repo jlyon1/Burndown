@@ -1,25 +1,16 @@
 package api
 
 import (
+	"burndown/database"
 	"encoding/json"
+	"fmt"
 	"github.com/gorilla/mux"
 	"net/http"
 	"time"
-	"fmt"
-	"burndown/database"
-	"github.com/bradfitz/slice"
 )
 
 type API struct {
 	Database database.DB
-}
-
-type Repo struct {
-	Name      string `json:"name"`
-	FullName  string `json:"full_name"`
-	URL       string `json:"html_url"`
-	IssuesURL string `json:"issues_url"`
-	PullsURL  string `json:"pulls_url"`
 }
 
 type Label struct {
@@ -36,71 +27,90 @@ type Issue struct {
 	Weight  int
 }
 
-type Repository struct {
-	Name   string
-	Issues []Issue
-	URL    string
+type CommitInfo struct {
+	Message string `json:"message"`
+	URL     string `json:"url"`
 }
 
-type Point struct{
-	Label time.Time
+type User struct {
+	Name   string    `json:"login"`
+	Id     int       `json:"id"`
+	Avatar string    `json:"avatar_url"`
+	Url    string    `json:"url"`
+	Date   time.Time `json:"date"`
+}
+
+type Commit struct {
+	Info      CommitInfo `json:"commit"`
+	Author    User       `json:"Author"`
+	Committer User       `json:"committer"`
+}
+
+type Pull struct{
+
+}
+
+type Repository struct {
+	Name    string `json:"full_name"`
+	Owner   User   `json:"owner"`
+	URL     string `json:"url"`
+	Issues  []Issue
+	Pulls   []Pull
+	Commits []Commit
+}
+
+type Point struct {
+	Label int
 	Value int
 }
 
-
 func reverse(ss []Issue) {
-    last := len(ss) - 1
-    for i := 0; i < len(ss)/2; i++ {
-        ss[i], ss[last-i] = ss[last-i], ss[i]
-    }
+	last := len(ss) - 1
+	for i := 0; i < len(ss)/2; i++ {
+		ss[i], ss[last-i] = ss[last-i], ss[i]
+	}
 }
 
-func (api *API) GetRepo(data string) []Point{
-	url := "https://api.github.com/repos/" + data + "/issues?state=all"
+func (api *API) GetRepo(data string) Repository {
+	url := "https://api.github.com/repos/" + data
 	_ = url
-	var labels []Point
-	res := api.Database.Find(data);
-	if res != ""{
+	var repo Repository
+	res := api.Database.Find(data)
+	if res != "" {
 		byteRes := []byte(res)
-		err:= json.Unmarshal(byteRes,&labels)
-		if err != nil{
-			fmt.Printf("%v",err.Error())
+		err := json.Unmarshal(byteRes, &repo)
+		if err != nil {
+			fmt.Printf("%v", err.Error())
 		}
-	}else{
-		var issues []Issue
+	} else {
+
+		var repo Repository
 		resp, err := http.Get(url)
-		if err != nil{
-			fmt.Printf("%v",err.Error())
+		if err != nil {
+			fmt.Printf("%v", err.Error())
 		}
 		reader := json.NewDecoder(resp.Body)
-		reader.Decode(&issues)
-		for idx, _ := range issues{
-			issues[idx].Weight = 1;
+		reader.Decode(&repo)
+
+		issue := url + "/issues?state=all"
+		resp, err = http.Get(issue)
+		if err != nil {
+			fmt.Printf("%v", err.Error())
 		}
+		reader = json.NewDecoder(resp.Body)
+		reader.Decode(&repo.Issues)
 
-		for _, issue := range issues {
-			labels = append(labels, Point{Label: issue.Created,Value: issue.Weight})
-
-			if(issue.State == "closed"){
-				labels = append(labels, Point{Label: issue.Closed,Value: - issue.Weight})
-
-			}
-		}
-		slice.Sort(labels, func(i,j int) bool {
-			return labels[i].Label.After(labels[j].Label)
-		})
-		api.Database.Set(data,labels)
-		api.Database.Expire(data,100);
+		api.Database.Set(data, repo)
+		api.Database.Expire(data, 10000)
 	}
 
-	return labels;
+	return repo
 }
 
 func (api *API) GetRepoHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	repoString := vars["owner"] + "/" + vars["repo"]
 	labels := api.GetRepo(repoString)
-	fmt.Printf("ASDF %d\n",len(labels));
 	WriteJSON(w, labels)
 }
 

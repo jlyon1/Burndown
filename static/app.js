@@ -14,7 +14,7 @@ Vue.component("header-text",{
 });
 
 Vue.component('line-chart', {
-  extends: VueChartJs.Line,
+  extends: VueChartJs.Bar,
   props: ["chartData"],
   data (){
     return{
@@ -29,12 +29,9 @@ Vue.component('line-chart', {
       vals = []
       for (var i = 0; i < data.length; i ++){
         text.push(data[i].Label);
-        if(i > 0){
-          vals.push(vals[i-1] + data[i].Value);
-          console.log(vals[i]);
-        }else{
-          vals.push(data[i].Value);
-        }
+
+        vals.push(data[i].Value);
+
       }
       this.renderChart({
         labels: text,
@@ -45,7 +42,7 @@ Vue.component('line-chart', {
             data: vals,
           }
         ]
-      }, {responsive: true, maintainAspectRatio: false});
+      }, {responsive: true, maintainAspectRatio: false, scales:{xAxes:[{barPercentage: 1}]}, legend:{display: false}});
     }
   },
   mounted () {
@@ -55,13 +52,30 @@ Vue.component('line-chart', {
 
 });
 
+Vue.component("repo-card",{
+  template: `<div><a v-bind:href=data.url<div class="card">
+  <img class="avatar" v-bind:src=data.owner.avatar_url></img>
+  <a class="repoName">{{data.full_name}}</a>
+  <p>Project Status: Who knows?</p>
+  </div></div>`,
+  props: ['data'],
+  data (){
+    return {
+
+    }
+  }
+})
+
 Vue.component("repo-info",{
-  template: `<div><line-chart v-if=render v-bind:chartData="chartInfo"></line-chart><div class="pulsate" style="width:20px;height:20px;background-color:blue;left: 0; right: 0; margin: 0 auto;" v-if=vis></div></div>`,
+  template: `<div>
+  <div class="pulsate" style="width:20px;height:20px;background-color:blue;left: 0; right: 0; margin: 0 auto;" v-if=vis></div>
+  <repo-card v-if=render v-bind:data=repoInfo ></repo-card>
+  </div>`,
   data (){
     return {
       repoData: "",
       repoDataOld: "blank",
-      chartInfo: "blank",
+      repoInfo: "blank",
       render: false,
       vis: false,
 
@@ -87,7 +101,7 @@ Vue.component("repo-info",{
             }else{
               el.render = true;
               el.vis = false;
-              el.chartInfo = data;
+              el.repoInfo = data;
 
             }
           });
