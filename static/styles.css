@@ -42,6 +42,15 @@ body{
   border-color: #1abc9c;
   border-width: 1px;
 }
+.progress.yellow::-moz-progress-bar {
+  background-color: #f1c40f;
+}
+.progress.red::-moz-progress-bar {
+  background-color: #e74c3c;
+}
+.progress.green::-moz-progress-bar {
+  background-color: #1abc9c;
+}
 
 .repoName{
   font-size:25px;

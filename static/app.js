@@ -3,7 +3,7 @@ var refresh = false;
 
 Vue.component("header-text",{
   template: `<div v-bind:style=textStyle><h1 v-bind:style=headerstyle>BurnDown</h1>
-  <p v-bind:style="subtext">Use burn down charts as a project sanity check</p></div>`,
+  <p v-bind:style="subtext">Use charts as a project sanity check</p></div>`,
   data (){
     return{
       textStyle: {textAlign:"center",position:"absolute",width:"auto",left:"0",right:"0",top:"100px"},
@@ -51,12 +51,16 @@ Vue.component('bar-chart', {
 });
 
 Vue.component("repo-card",{
-  template: `<div><a style="text-decoration:none; color: black;" v-bind:href=data.url> <div class="card">
-  <img class="avatar" v-bind:src=data.owner.avatar_url></img>
-  <a class="repoName">{{data.full_name}}</a>
+  template: `<div><a style="text-decoration:none; color:black;" v-bind:href=data.url>
+  <div style="margin: 20px;" class="box">
+  <span class="repoName">{{data.full_name}}</span>
+  <img class="image is-64x64 media-right" v-bind:src=data.owner.avatar_url style="float:right;"></img>
   <p>Project Status: Who knows?</p>
   <p stype="color:#aaa;">Loaded: {{data.Issues.length}} issues, {{data.Commits.length}} commits, and {{data.Pulls.length}} Pull Requests</p>
-  </div></a></div>`,
+  </div>
+
+  </a>
+  </div>`,
   props: ['data'],
   data (){
     return {
@@ -65,19 +69,47 @@ Vue.component("repo-card",{
   }
 })
 
+Vue.component("single-issue",{
+  props: ['issue','max'],
+  template: `<div style="margin:10px;background-color:white;height:30px;width:100%;border-bottom-style:solid;border-width:1px;border-color:#eee;">
+  <div style="width:90%;overflow:hide;float:left;">{{issue.label}}</div>
+  <div style="width:10%;float:right;"><progress class="progress" v-bind:class="{'is-danger': (percent >= .75),'is-warning': (percent >= .5 && percent < .75),'is-success': (percent <.5)}" :value=this.percent :max=1>{{percent}}</progress></div>
+  </div>`,
+  data (){
+    return {
+      percent: this.issue.val/this.max,
+    }
+  }
+})
 
 Vue.component("issue-card",{
-  template: `<div><div style="height: auto;" class="card">
-  <span style="font-size: 18px" class="repoName">Issues: <span v-bind:style="indic">????</span> <span>| open Issues: </span><span>| average open time:</span></span>
-  <div style="height:20px;margin-top:20px;">
-  aldsfjl
-  </div>
+  props: ['data'],
+  template: `<div><div style="height: auto; margin: 20px;overflow:hide;" class="box">
+  <div style="font-size: 18px;margin-bottom: 10px;" class="repoName">Issues: {{data.Issues.length}} <span>| open Issues: </span><span>| average open time:</span></div>
+  Open:
+  <single-issue v-for="val in open" :issue=val :max=issueData.MaxDuration></single-issue>
+  Closed:
   </div>
   </div>`,
   data (){
     return {
-      indic: {backgroundColor:"#f1c40f"}
+      issueData: {},
+      open: []
     }
+  },
+  mounted (){
+    let el = this;
+    let obj = []
+    $.get("/issue/" + repoData,function(data){
+      el.issueData = data;
+      for(let i =0; i < data.Data[0].Points.length; i ++){
+        obj.push({label: data.Data[0].Points[i].Label,val: data.Data[0].Points[i].Value});
+      }
+      console.log(obj);
+    }).fail(function(){
+    });
+    this.open = obj;
+    console.log(this.open)
   }
 })
 
@@ -86,7 +118,7 @@ Vue.component("repo-info",{
   template: `<div>
   <div class="pulsate" style="width:20px;height:20px;background-color:blue;left: 0; right: 0; margin: 0 auto;" v-if=vis></div>
   <repo-card v-if="render && repoInfo.full_name != ''" v-bind:data=repoInfo ></repo-card>
-  <issue-card v-if="render && repoInfo.full_name != ''"></issue-card>
+  <issue-card v-if="render && repoInfo.full_name != ''" v-bind:data=repoInfo></issue-card>
   </div>`,
   data (){
     return {
@@ -109,7 +141,6 @@ Vue.component("repo-info",{
       let el = this;
       this.repoData = repoData;
       if(this.repoData == this.repoDataOld && this.render){
-        console.log(this.repoData);
 
       }else{
         if(this.repoData !== ""){
@@ -122,7 +153,9 @@ Vue.component("repo-info",{
               el.vis = false;
               el.repoInfo = data;
             }
-          });
+          }).fail(function(){
+
+          });;
         }
       }
     }
@@ -160,7 +193,9 @@ Vue.component("get-repo",{
               el.inputStyle.borderColor = "#1abc9c";
               repoData = el.textboxText;
             }
-          });
+          }).fail(function(){
+
+          });;
         }
       }, 500);
     }
