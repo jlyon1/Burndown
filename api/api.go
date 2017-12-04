@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"time"
 	"strconv"
+	"strings"
 )
 
 type API struct {
@@ -30,14 +31,14 @@ type Issue struct {
 
 type CommitInfo struct {
 	Message string `json:"message"`
-	URL     string `json:"url"`
+	URL     string `json:"html_url"`
 }
 
 type User struct {
 	Name   string    `json:"login"`
 	Id     int       `json:"id"`
 	Avatar string    `json:"avatar_url"`
-	Url    string    `json:"url"`
+	Url    string    `json:"html_url"`
 	Date   time.Time `json:"date"`
 }
 
@@ -53,7 +54,7 @@ type Pull struct {
 type Repository struct {
 	Name    string `json:"full_name"`
 	Owner   User   `json:"owner"`
-	URL     string `json:"url"`
+	URL     string `json:"html_url"`
 	Issues  []Issue
 	Pulls   []Pull
 	Commits []Commit
@@ -114,12 +115,12 @@ func (api *API) GetIssueChart(w http.ResponseWriter, r *http.Request) {
 			openTime = startTime.Sub(issue.Created)/time.Second
 			point.Label = issue.Name + " - " + strconv.Itoa(issue.Number)
 			point.Value = int64(openTime)
-			open.Points = append(open.Points,point)
+			open.Points = append([]Point{point},open.Points...)
 		}else{
 			openTime = issue.Closed.Sub(issue.Created)/time.Second
 			point.Label = issue.Name + " - " + strconv.Itoa(issue.Number)
 			point.Value = int64(openTime)
-			closed.Points = append(closed.Points,point)
+			closed.Points = append([]Point{point},closed.Points...)
 			a.Closed += 1;
 		}
 
@@ -154,7 +155,6 @@ func (api *API) ValidHandler(w http.ResponseWriter, r *http.Request) {
 		reader := json.NewDecoder(resp.Body)
 		reader.Decode(&repo)
 		if repo.Name != "" {
-			fmt.Printf("asdf")
 			WriteJSON(w, "true")
 			api.GetRepo(repoString)
 		} else {
@@ -165,7 +165,9 @@ func (api *API) ValidHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (api *API) GetRepo(data string) Repository {
+	data = strings.ToLower(data)
 	url := "https://api.github.com/repos/" + data
+
 	_ = url
 	var repo Repository
 	res := api.Database.Find(data)

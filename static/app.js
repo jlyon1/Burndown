@@ -51,11 +51,11 @@ Vue.component('bar-chart', {
 });
 
 Vue.component("repo-card",{
-  template: `<div><a style="text-decoration:none; color:black;" v-bind:href=data.url>
+  template: `<div><a style="text-decoration:none; color:black;" v-bind:href=data.html_url>
   <div style="margin: 20px;" class="box">
   <span class="repoName">{{data.full_name}}</span>
   <img class="image is-64x64 media-right" v-bind:src=data.owner.avatar_url style="float:right;"></img>
-  <p>Project Status: Who knows?</p>
+  <p>Project Status: [WIP]</p>
   <p stype="color:#aaa;">Loaded: {{data.Issues.length}} issues, {{data.Commits.length}} commits, and {{data.Pulls.length}} Pull Requests</p>
   </div>
 
@@ -85,30 +85,48 @@ Vue.component("single-issue",{
 Vue.component("issue-card",{
   props: ['data'],
   template: `<div><div style="height: auto; margin: 20px;overflow:hide;" class="box">
-  <div style="font-size: 18px;margin-bottom: 10px;" class="repoName">Issues: {{data.Issues.length}} <span>| open Issues: </span><span>| average open time:</span></div>
+  <div style="font-size: 18px;margin-bottom: 10px;" class="repoName">Issues: {{data.Issues.length}} <span> <span style="color:#aaa;">-</span> Open Issues: {{issueData.Open}}</span><span> <span style="color:#aaa;">-</span> Average open time: {{issueData.AvgDuration/(3600*24)}}s</span></div>
   Open:
   <single-issue v-for="val in open" :issue=val :max=issueData.MaxDuration></single-issue>
   Closed:
+
+  <single-issue v-for="val in closed" :issue=val :max=issueData.MaxDuration></single-issue>
+
   </div>
   </div>`,
   data (){
     return {
       issueData: {},
-      open: []
+      open: [],
+      closed: []
     }
   },
   mounted (){
     let el = this;
     let obj = []
+    let cls = []
     $.get("/issue/" + repoData,function(data){
       el.issueData = data;
       for(let i =0; i < data.Data[0].Points.length; i ++){
-        obj.push({label: data.Data[0].Points[i].Label,val: data.Data[0].Points[i].Value});
+        if(data.Data[0].Points[i].Value < (.1*el.issueData.MaxDuration)){
+          obj.push({label: data.Data[0].Points[i].Label,val: (.1*el.issueData.MaxDuration)});
+        }else{
+          obj.push({label: data.Data[0].Points[i].Label,val: data.Data[0].Points[i].Value});
+        }
       }
-      console.log(obj);
+      for(let i =0; i < data.Data[1].Points.length; i ++){
+        if(data.Data[1].Points[i].Value < (.1*el.issueData.MaxDuration)){
+          cls.push({label: data.Data[1].Points[i].Label,val: (.1*el.issueData.MaxDuration)});
+        }else{
+          cls.push({label: data.Data[1].Points[i].Label,val: data.Data[1].Points[i].Value});
+        }
+      }
+      console.log(cls);
     }).fail(function(){
     });
     this.open = obj;
+    this.closed = cls;
+
     console.log(this.open)
   }
 })
