@@ -14,23 +14,26 @@ Vue.component("header-text",{
 });
 
 Vue.component('bar-chart', {
-  extends: VueChartJs.Bar,
-  props: ["chartData"],
+  extends: VueChartJs.Line,
   data (){
     return{
-      labels: [],
+      chartData: [],
     }
   },
   methods: {
-    test: function(){
+    render: function(){
       let data = this.chartData;
-      text = ["asdf"]
-      vals = [1]
-      // for (var i = 0; i < data.length; i ++){
-      //   text.push(data[i].Label);
-      //   vals.push(data[i].Value);
-      //
-      // }
+      text = []
+      vals = []
+      for(let i = 0; i <data.length; i ++){
+        text.push(data[i].Label)
+        console.log(data[i])
+        if(i == 0){
+          vals.push(data[i].Value)
+        }else{
+          vals.push(vals[i-1] + data[i].Value)
+        }
+      }
       this.renderChart({
         labels: text,
         datasets: [
@@ -40,15 +43,34 @@ Vue.component('bar-chart', {
             data: vals,
           }
         ]
-      }, {responsive: true, maintainAspectRatio: false, scales:{xAxes:[{barPercentage: 1}]}, legend:{display: false}});
+      }, {responsive: true, maintainAspectRatio: false, scales:{xAxes:[{barPercentage: 1}]}, elements: { point: { radius: 0 } }, legend:{display: false}});
     }
   },
   mounted () {
-
-    this.test();
+    let el = this;
+    $.get("/bar/" + repoData,function(data){
+      el.chartData = data;
+      el.render()
+    }).fail(function(){
+    });
   }
 
 });
+
+Vue.component("chart-card",{
+  template: `<div>
+  <div style="margin: 20px;" class="box">
+  <span class="repoName">Burndown Chart:</span>
+  <bar-chart></bar-chart>
+  </div>
+  </div>`,
+  props: ['data'],
+  data (){
+    return {
+
+    }
+  }
+})
 
 Vue.component("repo-card",{
   template: `<div><a style="text-decoration:none; color:black;" v-bind:href=data.html_url>
@@ -58,7 +80,6 @@ Vue.component("repo-card",{
   <p>Project Status: [WIP]</p>
   <p stype="color:#aaa;">Loaded: {{data.Issues.length}} issues, {{data.Commits.length}} commits, and {{data.Pulls.length}} Pull Requests</p>
   </div>
-
   </a>
   </div>`,
   props: ['data'],
@@ -136,7 +157,9 @@ Vue.component("repo-info",{
   template: `<div>
   <div class="pulsate" style="width:20px;height:20px;background-color:blue;left: 0; right: 0; margin: 0 auto;" v-if=vis></div>
   <repo-card v-if="render && repoInfo.full_name != ''" v-bind:data=repoInfo ></repo-card>
+  <chart-card v-if="render && repoInfo.full_name != ''"></chart-card>
   <issue-card v-if="render && repoInfo.full_name != ''" v-bind:data=repoInfo></issue-card>
+
   </div>`,
   data (){
     return {

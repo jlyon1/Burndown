@@ -6,9 +6,10 @@ import (
 	"fmt"
 	"github.com/gorilla/mux"
 	"net/http"
-	"time"
 	"strconv"
 	"strings"
+	"time"
+	"sort"
 )
 
 type API struct {
@@ -63,6 +64,7 @@ type Repository struct {
 type Point struct {
 	Label string
 	Value int64
+	Date  time.Time
 }
 
 type Dataset struct {
@@ -75,12 +77,26 @@ type Chart struct {
 }
 
 type IssueChart struct {
-	Name 				string
+	Name        string
 	Data        []Dataset
 	Open        int
 	Closed      int
 	AvgDuration time.Duration
 	MaxDuration time.Duration
+}
+
+type pointSlice []Point
+
+func (p pointSlice) Len() int {
+	return len(p)
+}
+
+func (p pointSlice) Less(i, j int) bool {
+	return p[i].Date.Before(p[j].Date)
+}
+
+func (p pointSlice) Swap(i, j int) {
+	p[i], p[j] = p[j], p[i]
 }
 
 func reverse(ss []Issue) {
@@ -101,41 +117,40 @@ func (api *API) GetIssueChart(w http.ResponseWriter, r *http.Request) {
 	open.Label = "Open Issues"
 	closed.Label = "Closed Issues"
 
-
 	a.Name = repoString
 	repo := api.GetRepo(repoString)
 	startTime := time.Now()
 
-	for _, issue := range repo.Issues{
+	for _, issue := range repo.Issues {
 		var openTime time.Duration
 		var point Point
 
-		if(issue.State == "open"){
-			a.Open += 1;
-			openTime = startTime.Sub(issue.Created)/time.Second
+		if issue.State == "open" {
+			a.Open += 1
+			openTime = startTime.Sub(issue.Created) / time.Second
 			point.Label = issue.Name + " - " + strconv.Itoa(issue.Number)
 			point.Value = int64(openTime)
-			open.Points = append([]Point{point},open.Points...)
-		}else{
-			openTime = issue.Closed.Sub(issue.Created)/time.Second
+			open.Points = append([]Point{point}, open.Points...)
+		} else {
+			openTime = issue.Closed.Sub(issue.Created) / time.Second
 			point.Label = issue.Name + " - " + strconv.Itoa(issue.Number)
 			point.Value = int64(openTime)
-			closed.Points = append([]Point{point},closed.Points...)
-			a.Closed += 1;
+			closed.Points = append([]Point{point}, closed.Points...)
+			a.Closed += 1
 		}
 
 		a.AvgDuration += openTime
-		if(openTime > a.MaxDuration){
+		if openTime > a.MaxDuration {
 			a.MaxDuration = openTime
 		}
 
 	}
 
-	a.Data = append(a.Data,open)
-	a.Data = append(a.Data,closed)
+	a.Data = append(a.Data, open)
+	a.Data = append(a.Data, closed)
 
 	a.AvgDuration /= time.Duration(a.Open + a.Closed)
-	WriteJSON(w,a)
+	WriteJSON(w, a)
 }
 
 func (api *API) ValidHandler(w http.ResponseWriter, r *http.Request) {
@@ -162,6 +177,22 @@ func (api *API) ValidHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+}
+
+func (api *API) GetBarChart(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	repoString := vars["owner"] + "/" + vars["repo"]
+	repo := api.GetRepo(repoString)
+	var chart pointSlice
+	for _, issue := range repo.Issues {
+		chart = append(chart,Point{Label:strconv.Itoa(issue.Number),Value:1,Date:issue.Created})
+		if(issue.State =="closed"){
+			chart = append(chart,Point{Label:strconv.Itoa(issue.Number),Value:-1,Date:issue.Closed})
+
+		}
+	}
+	sort.Sort(chart);
+	WriteJSON(w, chart)
 }
 
 func (api *API) GetRepo(data string) Repository {
@@ -196,7 +227,7 @@ func (api *API) GetRepo(data string) Repository {
 
 		commits := url + "/commits?state=all&per_page=100"
 		resp, err = http.Get(commits)
-		if err != nil{
+		if err != nil {
 			fmt.Printf("%v", err.Error())
 		}
 		reader = json.NewDecoder(resp.Body)
