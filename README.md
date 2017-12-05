@@ -12,6 +12,8 @@ This project is currenlty in early stages, Some features that I plan to implemen
 - [ ] Mark issues as ignored using labels
 - [ ] Provide a display of issues fixed by recent commits
 - [ ] Rank the most 'useful' committer (the one who fixes the most issues/the highest weighted issues)
+- [ ] Add a config file
+- [ ] Use github api keys so more than 60 requests per hour can be made
 
 Note: Nothing this project says means anything about your project, It is just using data to make a guess
 
