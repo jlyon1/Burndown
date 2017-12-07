@@ -27,6 +27,7 @@ type Issue struct {
 	Created time.Time `json:"created_at"`
 	Closed  time.Time `json:"closed_at"`
 	Labels  []Label   `json:"labels"`
+	URL			string		`json:"html_url"`
 	Weight  int
 }
 
@@ -64,6 +65,7 @@ type Repository struct {
 type Point struct {
 	Label string
 	Value int64
+	Link   string
 	Date  time.Time
 }
 
@@ -106,50 +108,78 @@ func reverse(ss []Issue) {
 	}
 }
 
+func (api *API) GenerateIssueChart(repoString string) (IssueChart){
+		var a IssueChart
+		var open Dataset
+		var closed Dataset
+		res := api.Database.Find("issue/" + repoString)
+		if(res != ""){
+			byteRes := []byte(res)
+			err := json.Unmarshal(byteRes, &a)
+			if err != nil {
+				fmt.Printf("%v", err.Error())
+			}
+		}else{
+			open.Label = "Open Issues"
+			closed.Label = "Closed Issues"
+
+			a.Name = repoString
+			repo := api.GetRepo(repoString)
+			startTime := time.Now()
+
+			for _, issue := range repo.Issues {
+				var openTime time.Duration
+				var point Point
+
+				point.Link = issue.URL
+				if issue.State == "open" {
+					a.Open += 1
+					openTime = startTime.Sub(issue.Created) / time.Second
+					point.Label = issue.Name + " - " + strconv.Itoa(issue.Number)
+					point.Value = int64(openTime)
+					open.Points = append([]Point{point}, open.Points...)
+					} else {
+						openTime = issue.Closed.Sub(issue.Created) / time.Second
+						point.Label = issue.Name + " - " + strconv.Itoa(issue.Number)
+						point.Value = int64(openTime)
+						closed.Points = append([]Point{point}, closed.Points...)
+						a.Closed += 1
+					}
+
+					a.AvgDuration += openTime
+					if openTime > a.MaxDuration {
+						a.MaxDuration = openTime
+					}
+
+				}
+
+				a.Data = append(a.Data, open)
+				a.Data = append(a.Data, closed)
+
+				a.AvgDuration /= time.Duration(a.Open + a.Closed)
+				api.Database.Set("issue/" + repoString, a);
+				api.Database.Expire("issue/" + repoString, api.Database.TTL(repoString)/time.Second)
+		}
+		return a;
+}
+
+func (api *API) GetStaleHandler(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	repoString := vars["owner"] + "/" + vars["repo"]
+	a := api.GenerateIssueChart(repoString)
+	if(a.AvgDuration >= a.MaxDuration){
+		WriteJSON(w, "probably stale")
+	}else if(a.AvgDuration >= a.MaxDuration/2){
+		WriteJSON(w, "probably getting stale")
+	}else{
+		WriteJSON(w, a.MaxDuration/2)
+	}
+}
+
 func (api *API) GetIssueChart(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	repoString := vars["owner"] + "/" + vars["repo"]
-
-	var a IssueChart
-	var open Dataset
-	var closed Dataset
-
-	open.Label = "Open Issues"
-	closed.Label = "Closed Issues"
-
-	a.Name = repoString
-	repo := api.GetRepo(repoString)
-	startTime := time.Now()
-
-	for _, issue := range repo.Issues {
-		var openTime time.Duration
-		var point Point
-
-		if issue.State == "open" {
-			a.Open += 1
-			openTime = startTime.Sub(issue.Created) / time.Second
-			point.Label = issue.Name + " - " + strconv.Itoa(issue.Number)
-			point.Value = int64(openTime)
-			open.Points = append([]Point{point}, open.Points...)
-		} else {
-			openTime = issue.Closed.Sub(issue.Created) / time.Second
-			point.Label = issue.Name + " - " + strconv.Itoa(issue.Number)
-			point.Value = int64(openTime)
-			closed.Points = append([]Point{point}, closed.Points...)
-			a.Closed += 1
-		}
-
-		a.AvgDuration += openTime
-		if openTime > a.MaxDuration {
-			a.MaxDuration = openTime
-		}
-
-	}
-
-	a.Data = append(a.Data, open)
-	a.Data = append(a.Data, closed)
-
-	a.AvgDuration /= time.Duration(a.Open + a.Closed)
+	a := api.GenerateIssueChart(repoString)
 	WriteJSON(w, a)
 }
 

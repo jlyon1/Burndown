@@ -1,6 +1,7 @@
 package database
 
 import (
+  "time"
 )
 
 type DB interface{
@@ -9,6 +10,8 @@ type DB interface{
   Find(key string) string
   Set(key string, val interface{}) bool
   Delete(key string) bool
-  Expire(key string, val int64) bool
+  Expire(key string, val time.Duration) bool
+  TTL(key string) time.Duration
+
 
 }

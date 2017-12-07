@@ -43,8 +43,14 @@ func (r *Redis) Find(key string) string{
   return val
 }
 
-func (r *Redis) Expire(key string, val int64) bool{
+func (r *Redis) Expire(key string, val time.Duration) bool{
   ret, _ := r.Client.Expire(key,time.Duration(val)*time.Second).Result()
+  //fmt.Printf("val " + val)
+  return ret
+}
+
+func (r *Redis) TTL(key string) time.Duration{
+  ret, _ := r.Client.TTL(key).Result()
   //fmt.Printf("val " + val)
   return ret
 }

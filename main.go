@@ -28,12 +28,16 @@ func main() {
 	r := mux.NewRouter()
 
 	r.HandleFunc("/", api.IndexHandler).Methods("GET")
+	r.HandleFunc("/{owner}/{repo}", api.IndexHandler).Methods("GET")
+
 	r.HandleFunc("/get/{owner}/{repo}",api.GetRepoHandler).Methods("GET")
+	r.HandleFunc("/stale/{owner}/{repo}",api.GetStaleHandler).Methods("GET")
+
 	r.HandleFunc("/issue/{owner}/{repo}",api.GetIssueChart).Methods("GET")
 	r.HandleFunc("/bar/{owner}/{repo}",api.GetBarChart).Methods("GET")
 	r.HandleFunc("/valid/{owner}/{repo}",api.ValidHandler).Methods("GET")
 
-	r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("static/"))))
+	r.PathPrefix("/static/serve/").Handler(http.StripPrefix("/static/serve/", http.FileServer(http.Dir("static/"))))
 	http.ListenAndServe("0.0.0.0:8080", r)
 
 }

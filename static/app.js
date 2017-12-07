@@ -31,7 +31,7 @@ Vue.component('bar-chart', {
       vals = []
       for(let i = 0; i <data.length; i ++){
         text.push(data[i].Label)
-        console.log(data[i])
+        //console.log(data[i])
         if(i == 0){
           vals.push(data[i].Value)
         }else{
@@ -97,7 +97,7 @@ Vue.component("repo-card",{
 Vue.component("single-issue",{
   props: ['issue','max'],
   template: `<div style="margin:10px;background-color:white;height:30px;width:100%;border-bottom-style:solid;border-width:1px;border-color:#eee;">
-  <div style="width:90%;overflow:hide;float:left;">{{issue.label}}</div>
+  <div style="width:90%;overflow:hide;float:left;"><a :href=issue.link>{{issue.label}}</a></div>
   <div style="width:10%;float:right;"><progress class="progress" v-bind:class="{'is-danger': (percent >= .75),'is-warning': (percent >= .5 && percent < .75),'is-success': (percent <.5)}" :value=this.percent :max=1>{{percent}}</progress></div>
   </div>`,
   data (){
@@ -110,7 +110,7 @@ Vue.component("single-issue",{
 Vue.component("issue-card",{
   props: ['data'],
   template: `<div><div style="height: auto; margin: 20px;overflow:hide;" class="box">
-  <div style="font-size: 18px;margin-bottom: 10px;" class="repoName">Issues: {{data.Issues.length}} <span> <span style="color:#aaa;">-</span> Open Issues: {{issueData.Open}}</span><span> <span style="color:#aaa;">-</span> Average open time: {{issueData.AvgDuration/(3600*24)}}s</span></div>
+  <div style="font-size: 18px;margin-bottom: 10px;" class="repoName">Issues: {{data.Issues.length}} <span> <span style="color:#aaa;">-</span> Open Issues: {{issueData.Open}}</span><span> <span style="color:#aaa;">-</span> Average open time: {{(issueData.AvgDuration/(3600*24)).toFixed(2)}} days</span></div>
   Open:
   <single-issue v-for="val in open" :issue=val :max=issueData.MaxDuration></single-issue>
   Closed:
@@ -134,25 +134,25 @@ Vue.component("issue-card",{
       el.issueData = data;
       for(let i =0; i < data.Data[0].Points.length; i ++){
         if(data.Data[0].Points[i].Value < (.1*el.issueData.MaxDuration)){
-          obj.push({label: data.Data[0].Points[i].Label,val: (.1*el.issueData.MaxDuration)});
+          obj.push({link: data.Data[0].Points[i].Link, label: data.Data[0].Points[i].Label,val: (.1*el.issueData.MaxDuration)});
         }else{
-          obj.push({label: data.Data[0].Points[i].Label,val: data.Data[0].Points[i].Value});
+          obj.push({link: data.Data[0].Points[i].Link, label: data.Data[0].Points[i].Label,val: data.Data[0].Points[i].Value});
         }
       }
       for(let i =0; i < data.Data[1].Points.length; i ++){
         if(data.Data[1].Points[i].Value < (.1*el.issueData.MaxDuration)){
-          cls.push({label: data.Data[1].Points[i].Label,val: (.1*el.issueData.MaxDuration)});
+          cls.push({link: data.Data[1].Points[i].Link, label: data.Data[1].Points[i].Label,val: (.1*el.issueData.MaxDuration)});
         }else{
-          cls.push({label: data.Data[1].Points[i].Label,val: data.Data[1].Points[i].Value});
+          cls.push({link: data.Data[1].Points[i].Link, label: data.Data[1].Points[i].Label,val: data.Data[1].Points[i].Value});
         }
       }
-      console.log(cls);
+      //console.log(cls);
     }).fail(function(){
     });
     this.open = obj;
     this.closed = cls;
 
-    console.log(this.open)
+    //console.log(this.open)
   }
 })
 
@@ -177,6 +177,8 @@ Vue.component("repo-info",{
   },
   methods: {
     update: function(){
+      repoData = window.location.pathname.substr(1,window.location.pathname.length);
+
       if(refresh){
         this.vis = true;
         refresh = false;
@@ -206,6 +208,7 @@ Vue.component("repo-info",{
     }
   },
   mounted(){
+    //console.log(window.location.pathname);
     setInterval(this.update, 100);
   }
 });
@@ -235,6 +238,7 @@ Vue.component("get-repo",{
           $.get("/valid/" + el.textboxText,function(data){
             refresh = true;
             if(data == "true"){
+              history.pushState({content:document.documentElement.innerHTML}, null, "/" + el.textboxText);
               el.inputStyle.borderColor = "#1abc9c";
               repoData = el.textboxText;
             }
@@ -247,7 +251,9 @@ Vue.component("get-repo",{
 
   },
   mounted(){
+    this.textboxText = window.location.pathname.substr(1,window.location.pathname.length);
     this.update();
+
   }
 
 });
