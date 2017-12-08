@@ -11,9 +11,9 @@ How to use this project - The different charts represent different ways to look 
 ## State of the project
 
 This project is currenlty in early stages, Some features that I plan to implement
-- [ ] Make a 'guess' at how stale the project is
-- [ ] Allow weights to be added to issues via labels
-- [ ] Mark issues as ignored using labels
+- [X] Make a 'guess' at how stale the project is
+- [X] Allow weights to be added to issues via labels
+- [X] Mark issues as ignored using labels
 - [ ] Provide a display of issues fixed by recent commits
 - [ ] Rank the most 'useful' committer (the one who fixes the most issues/the highest weighted issues)
 - [ ] Add a config file
