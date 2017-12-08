@@ -81,7 +81,7 @@ Vue.component("repo-card",{
   <div style="margin: 20px;" class="box">
   <span class="repoName">{{data.full_name}}</span>
   <img class="image is-64x64 media-right" v-bind:src=data.owner.avatar_url style="float:right;"></img>
-  <p>Project Status: [WIP]</p>
+  <p>Project Status: {{staleness.Text}}</p>
   <p stype="color:#aaa;">Loaded: {{data.Issues.length}} issues, {{data.Commits.length}} commits, and {{data.Pulls.length}} Pull Requests</p>
   </div>
   </a>
@@ -89,8 +89,14 @@ Vue.component("repo-card",{
   props: ['data'],
   data (){
     return {
-
+      staleness: 0
     }
+  },
+  mounted(){
+    let el = this;
+    $.get("/stale/" + repoData, function(data){
+      el.staleness = data;
+    })
   }
 })
 
@@ -216,7 +222,7 @@ Vue.component("repo-info",{
 var timeout = null;
 Vue.component("get-repo",{
   template: `<div v-bind:style=textStyle>
-              <input v-bind:style=inputStyle @keyup=update v-bind:placeholder=repos v-model=textboxText>
+              <input class="input" style="width:50%;text-align:center;" @keyup=update v-bind:placeholder=repos v-model=textboxText>
               </input>
 
               </div>`,

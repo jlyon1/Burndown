@@ -62,6 +62,13 @@ type Repository struct {
 	Commits []Commit
 }
 
+type Staleness struct {
+	Stale int64 `json:"staleness"`
+	Max   int64 `json:"max"`
+	Ratio float32	`json:ratio`
+	Text 	string	`json:text`
+}
+
 type Point struct {
 	Label string
 	Value int64
@@ -130,6 +137,14 @@ func (api *API) GenerateIssueChart(repoString string) (IssueChart){
 			for _, issue := range repo.Issues {
 				var openTime time.Duration
 				var point Point
+				ignore := false
+				for _,label := range issue.Labels{
+					if(label.Name == "burndown/ignore"){
+						ignore = true
+					}
+				}
+
+				if(ignore){continue}
 
 				point.Link = issue.URL
 				if issue.State == "open" {
@@ -167,13 +182,25 @@ func (api *API) GetStaleHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	repoString := vars["owner"] + "/" + vars["repo"]
 	a := api.GenerateIssueChart(repoString)
-	if(a.AvgDuration >= a.MaxDuration){
-		WriteJSON(w, "probably stale")
-	}else if(a.AvgDuration >= a.MaxDuration/2){
-		WriteJSON(w, "probably getting stale")
-	}else{
-		WriteJSON(w, a.MaxDuration/2)
+	var stl Staleness
+
+	for _,issue := range a.Data[0].Points{
+		stl.Stale += issue.Value;
 	}
+	if(len(a.Data[0].Points) > 0){
+		stl.Stale /= int64(len(a.Data[0].Points));
+	}
+	stl.Max = int64(a.MaxDuration)
+	stl.Ratio = float32(stl.Stale)/float32(stl.Max)
+	if(stl.Ratio >= .75){
+		stl.Text = "Looking pretty stale"
+	}else if(stl.Ratio >= .5){
+		stl.Text = "Slightly stale"
+	}else{
+		stl.Text = "Looking good"
+	}
+	WriteJSON(w, stl)
+
 }
 
 func (api *API) GetIssueChart(w http.ResponseWriter, r *http.Request) {
