@@ -159,9 +159,23 @@ func (api *API) GetBarChart(w http.ResponseWriter, r *http.Request) {
 	repo := api.GetRepo(repoString)
 	var chart pointSlice
 	for _, issue := range repo.Issues {
-		chart = append(chart,Point{Label:strconv.Itoa(issue.Number),Value:1,Date:issue.Created})
+		str := ""
+		weight := false
+		for _,label := range issue.Labels{
+			if(strings.Contains(label.Name, "burndown")){
+				weight = true
+				str = label.Name[9:len(label.Name)]
+				break;
+			}
+		}
+		var val int
+		val = 1
+		if(weight){
+			val,_ = strconv.Atoi(str)
+		}
+		chart = append(chart,Point{Label:strconv.Itoa(issue.Number),Value:int64(val),Date:issue.Created})
 		if(issue.State =="closed"){
-			chart = append(chart,Point{Label:strconv.Itoa(issue.Number),Value:-1,Date:issue.Closed})
+			chart = append(chart,Point{Label:strconv.Itoa(issue.Number),Value:int64(-val),Date:issue.Closed})
 
 		}
 	}
@@ -216,7 +230,7 @@ func (api *API) GetRepo(data string) Repository {
 		reader.Decode(&repo.Pulls)
 
 		api.Database.Set(data, repo)
-		api.Database.Expire(data, 10000)
+		api.Database.Expire(data, 60)
 	}
 
 	return repo
