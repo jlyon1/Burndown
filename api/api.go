@@ -139,7 +139,7 @@ func (api *API) GenerateIssueChart(repoString string) (IssueChart){
 				var point Point
 				ignore := false
 				for _,label := range issue.Labels{
-					if(label.Name == "burndown/ignore"){
+					if(label.Name == "issue/ignore"){
 						ignore = true
 					}
 				}
