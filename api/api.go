@@ -127,6 +127,9 @@ func (api *API) GetStaleHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (api *API) GetBadgeHandler(w http.ResponseWriter, r *http.Request) {
+ 	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Cache-Control", "no-cache")
+
 	vars := mux.Vars(r)
 	repoString := vars["owner"] + "/" + vars["repo"]
 	stl := api.GenerateStaleness(repoString)
