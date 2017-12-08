@@ -4,7 +4,7 @@ Display the current state of a repository generated from different data on the p
 The idea is to provide a tool that is simple to use to get a feel for if a team or project is
 making productive changes.
 
-## State of the project'
+## Usage
 
 How to use this project - The different charts represent different ways to look at your project in terms of issues, if you wish to ignore an issue add a 'issue/ignore' label, if you want to give it a different weight on the burn down chart (including zero and negative numbers) add a label burdown/{value}
 
