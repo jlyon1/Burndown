@@ -95,9 +95,7 @@ func (api *API) GenerateIssueChart(repoString string) (IssueChart){
 		return a;
 }
 
-func (api *API) GetStaleHandler(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	repoString := vars["owner"] + "/" + vars["repo"]
+func (api *API) GenerateStaleness(repoString string) (Staleness){
 	a := api.GenerateIssueChart(repoString)
 	var stl Staleness
 
@@ -116,8 +114,30 @@ func (api *API) GetStaleHandler(w http.ResponseWriter, r *http.Request) {
 	}else{
 		stl.Text = "Looking good"
 	}
+	return stl
+}
+
+func (api *API) GetStaleHandler(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	repoString := vars["owner"] + "/" + vars["repo"]
+
+	stl := api.GenerateStaleness(repoString)
 	WriteJSON(w, stl)
 
+}
+
+func (api *API) GetBadgeHandler(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	repoString := vars["owner"] + "/" + vars["repo"]
+	stl := api.GenerateStaleness(repoString)
+
+	if(stl.Ratio >= .75){
+		http.ServeFile(w, r, "stale.svg")
+	}else if(stl.Ratio >= .5){
+		http.ServeFile(w, r, "getting_stale.svg")
+	}else{
+		http.ServeFile(w, r, "looking_good.svg")
+	}
 }
 
 func (api *API) GetIssueChart(w http.ResponseWriter, r *http.Request) {

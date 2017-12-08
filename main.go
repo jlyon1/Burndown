@@ -32,6 +32,7 @@ func main() {
 
 	r.HandleFunc("/get/{owner}/{repo}",api.GetRepoHandler).Methods("GET")
 	r.HandleFunc("/stale/{owner}/{repo}",api.GetStaleHandler).Methods("GET")
+	r.HandleFunc("/badge/{owner}/{repo}",api.GetBadgeHandler).Methods("GET")
 
 	r.HandleFunc("/issue/{owner}/{repo}",api.GetIssueChart).Methods("GET")
 	r.HandleFunc("/bar/{owner}/{repo}",api.GetBarChart).Methods("GET")
