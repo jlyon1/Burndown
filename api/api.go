@@ -250,7 +250,7 @@ func (api *API) GetRepo(data string) Repository {
 		reader.Decode(&repo.Pulls)
 
 		api.Database.Set(data, repo)
-		api.Database.Expire(data, 60)
+		api.Database.Expire(data, 6000)
 	}
 
 	return repo
