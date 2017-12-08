@@ -1,4 +1,4 @@
-# Burndown
+# Burndown [![Project State](https://status.jlyon.org/badge/jlyon1/burndown)](https://status.jlyon.org/jlyon1/burndown)
 
 Display the current state of a repository generated from different data on the project's github page.
 The idea is to provide a tool that is simple to use to get a feel for if a team or project is
