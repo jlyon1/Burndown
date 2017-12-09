@@ -269,7 +269,7 @@ Vue.component("titlebar",{
   template: `<div v-bind:style=titleStyle><p v-bind:style=paragraphStyle>{{titleText}}</p></div>`,
   data (){
     return{
-      titleStyle: {position:"absolute",backgroundColor:"#1abc9c",height:"50px",width:"auto",top:"1",left:"0",right:"0",color:"white"},
+      titleStyle: {position:"absolute",backgroundColor:"#1abc9c",height:"50px",width:"auto",top:"0.1",left:"0",right:"0",color:"white"},
       paragraphStyle: {float: "left",height:"50px",lineHeight:"50px",verticalAlign:"center",paddingLeft:"30px",margin:"0"},
       titleText: "🔥⬇️"
     }

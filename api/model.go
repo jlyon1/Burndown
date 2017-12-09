@@ -8,6 +8,7 @@ import (
 
 type API struct {
 	Database database.DB
+  Key string
 }
 
 type Label struct {

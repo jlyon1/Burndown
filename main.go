@@ -21,9 +21,12 @@ func main() {
 	redis.Password = ""
 	connectDB(redis)
 
+	fmt.Printf("Connecting to Database: \n");
 	api := api.API{
 		Database: redis,
 	}
+	fmt.Printf("Loading API Key: ")
+	api.LoadKey();
 
 	r := mux.NewRouter()
 

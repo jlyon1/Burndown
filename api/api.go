@@ -32,6 +32,15 @@ func reverse(ss []Issue) {
 	}
 }
 
+func (api *API) LoadKey(){
+	api.Key = api.Database.Find("key");
+	if(api.Key != ""){
+		fmt.Printf("key loaded\n");
+	}else{
+		fmt.Printf("key not loaded\n");
+	}
+}
+
 func (api *API) GenerateIssueChart(repoString string) (IssueChart){
 		var a IssueChart
 		var open Dataset
@@ -229,6 +238,9 @@ func (api *API) GetRepo(data string) Repository {
 		reader.Decode(&repo)
 
 		issue := url + "/issues?state=all&per_page=100"
+		if(api.Key != ""){
+			issue += "&access_token=" + api.Key
+		}
 		resp, err = http.Get(issue)
 		if err != nil {
 			fmt.Printf("%v", err.Error())
@@ -237,6 +249,9 @@ func (api *API) GetRepo(data string) Repository {
 		reader.Decode(&repo.Issues)
 
 		commits := url + "/commits?state=all&per_page=100"
+		if(api.Key != ""){
+			commits += "&access_token=" + api.Key
+		}
 		resp, err = http.Get(commits)
 		if err != nil {
 			fmt.Printf("%v", err.Error())
@@ -245,6 +260,9 @@ func (api *API) GetRepo(data string) Repository {
 		reader.Decode(&repo.Commits)
 
 		Pulls := url + "/pulls?state=all&per_page=100"
+		if(api.Key != ""){
+			Pulls += "&access_token=" + api.Key
+		}
 		resp, err = http.Get(Pulls)
 		if err != nil {
 			fmt.Printf("%v", err.Error())
