@@ -3,9 +3,9 @@ var refresh = false;
 
 Vue.component("header-text",{
   template: `<div v-bind:style=textStyle><h1 v-bind:style=headerstyle>BurnDown</h1>
-  <p v-bind:style="subtext">Use charts as a project sanity check</p>
+  <p v-bind:style="subtext">Use charts as a project sanity check - </p>
 
-  <a href="https://github.com/jlyon1/burndown" v-bind:style="smaller">Open Source</a></div>`,
+  <a href="https://github.com/jlyon1/burndown" v-bind:style="smaller">Source</a> - <a href="https://github.com/jlyon1/burndown" v-bind:style="smaller">About</a></div>`,
   data (){
     return{
       textStyle: {textAlign:"center",position:"absolute",width:"auto",left:"0",right:"0",top:"100px"},

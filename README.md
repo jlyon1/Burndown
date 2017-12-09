@@ -4,9 +4,15 @@ Display the current state of a repository generated from different data on the p
 The idea is to provide a tool that is simple to use to get a feel for if a team or project is
 making productive changes.
 
-## Usage
+## About
 
 How to use this project - The different charts represent different ways to look at your project in terms of issues, if you wish to ignore an issue add a 'issue/ignore' label, if you want to give it a different weight on the burn down chart (including zero and negative numbers) add a label burdown/{value}
+
+I plan to add a more detailed README as time goes on, and implement smarter features for determining the state of the project.
+
+The 'state' is currently determined by the time that the current open issues have been open, compared to the max time an issue has been open. If many issues have been open for a long time, the project is seen as more stale.
+
+Badges are generated at /badge/{user}/{reponame}
 
 ## State of the project
 
