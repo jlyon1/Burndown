@@ -166,9 +166,11 @@ Vue.component("issue-card",{
 Vue.component("repo-info",{
   template: `<div>
   <div class="pulsate" style="width:20px;height:20px;background-color:blue;left: 0; right: 0; margin: 0 auto;" v-if=vis></div>
-  <repo-card v-if="render && repoInfo.full_name != ''" v-bind:data=repoInfo ></repo-card>
-  <chart-card v-if="render && repoInfo.full_name != ''"></chart-card>
-  <issue-card v-if="render && repoInfo.full_name != ''" v-bind:data=repoInfo></issue-card>
+  <div class="columns">
+  <div class="column is-one-fifth" v-if="render && repoInfo.full_name != ''"><repo-card v-bind:data=repoInfo ></repo-card></div>
+  <div class="column" v-if="render && repoInfo.full_name != ''"><issue-card v-bind:data=repoInfo></issue-card></div>
+  </div>
+  <div class="column" v-if="render && repoInfo.full_name != ''"><chart-card></chart-card></div>
 
   </div>`,
   data (){

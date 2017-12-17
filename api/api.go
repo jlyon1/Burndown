@@ -117,11 +117,11 @@ func (api *API) GenerateStaleness(repoString string) (Staleness){
 	stl.Max = int64(a.MaxDuration)
 	stl.Ratio = float32(stl.Stale)/float32(stl.Max)
 	if(stl.Ratio >= .75){
-		stl.Text = "Looking pretty stale"
+		stl.Text = "Appears Stale"
 	}else if(stl.Ratio >= .5){
 		stl.Text = "Slightly stale"
 	}else{
-		stl.Text = "Looking good"
+		stl.Text = "Active Development"
 	}
 	return stl
 }
