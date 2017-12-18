@@ -1,7 +1,7 @@
 package api
 
 import (
-  "github.com/jlyon1/burndown/database"
+  "github.com/jlyon1/Burndown/database"
   "time"
 
 )

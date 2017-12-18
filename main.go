@@ -1,10 +1,10 @@
 package main
 
 import (
-	"github.com/jlyon1/burndown/api"
+	"github.com/jlyon1/Burndown/api"
 	"github.com/gorilla/mux"
 	"net/http"
-	"github.com/jlyon1/burndown/database"
+	"github.com/jlyon1/Burndown/database"
 	"fmt"
 )
 
