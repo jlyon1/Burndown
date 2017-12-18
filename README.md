@@ -1,4 +1,4 @@
-# Burndown [![Project State](https://burndown.io/badge/jlyon1/burndown)](https://burndown.io/jlyon1/burndown)
+# Burndown [![Project State](https://burndown.io/badge/jlyon1/burndown)](https://burndown.io/jlyon1/burndown) [![Build](https://travis-ci.org/jlyon1/Burndown.svg?branch=master)](https://travis-ci.org/jlyon1/Burndown)
 
 Display the current state of a repository generated from different data on the project's github page.
 The idea is to provide a tool that is simple to use to get a feel for if a team or project is
