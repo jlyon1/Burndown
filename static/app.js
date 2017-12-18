@@ -78,7 +78,7 @@ Vue.component("chart-card",{
 
 Vue.component("repo-card",{
   template: `<div><a style="text-decoration:none; color:black;" v-bind:href=data.html_url>
-  <div style="margin: 20px;" class="box">
+  <div style="margin: 20px;"  class="box" >
   <span class="repoName">{{data.full_name}}</span>
   <img class="image is-64x64 media-right" v-bind:src=data.owner.avatar_url style="float:right;"></img>
   <p>Project Status: {{staleness.Text}}</p>
