@@ -81,14 +81,15 @@ Vue.component("repo-card",{
   <div style="margin: 20px;"  class="box" >
   <span class="repoName">{{data.full_name}}</span>
   <img class="image is-64x64 media-right" v-bind:src=data.owner.avatar_url style="float:right;"></img>
-  <p>Project Status: {{staleness.Text}}</p>
-  <p stype="color:#aaa;">Loaded: {{data.Issues.length}} issues, {{data.Commits.length}} commits, and {{data.Pulls.length}} Pull Requests</p>
+  <div><img :src="badge + data.full_name"></img></div>
+  <p style="color:#aaa;font-size:10px;">Loaded: {{data.Issues.length}} issues, {{data.Commits.length}} commits, and {{data.Pulls.length}} Pull Requests</p>
   </div>
   </a>
   </div>`,
   props: ['data'],
   data (){
     return {
+      badge: "/badge/",
       staleness: 0
     }
   },
