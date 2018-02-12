@@ -63,7 +63,7 @@ Vue.component('bar-chart', {
 
 Vue.component("chart-card",{
   template: `<div>
-  <div style="margin: 20px;" class="notification is-primary">
+  <div style="margin: 20px;" class="notification">
   <span class="repoName">Burndown Chart:</span>
   <bar-chart></bar-chart>
   </div>
@@ -78,7 +78,7 @@ Vue.component("chart-card",{
 
 Vue.component("repo-card",{
   template: `<div><a style="text-decoration:none; color:black;" v-bind:href=data.html_url>
-  <div style="margin: 20px;"  class="notification is-primary" >
+  <div style="margin: 20px;"  class="notification" >
   <span class="repoName">{{data.full_name}}</span>
   <img class="image is-64x64 media-right" v-bind:src=data.owner.avatar_url style="float:right;"></img>
   <div><img :src="badge + data.full_name"></img></div>
@@ -103,7 +103,7 @@ Vue.component("repo-card",{
 
 Vue.component("single-issue",{
   props: ['issue','max'],
-  template: `<div style="margin:10px;background-color:white;height:30px;width:100%;border-bottom-style:solid;border-width:1px;border-color:#eee;">
+  template: `<div style="margin:10px;height:30px;width:100%;border-bottom-style:solid;border-width:1px;border-color:#eee;">
   <div style="width:90%;overflow:hide;float:left;"><a :href=issue.link>{{issue.label}}</a></div>
   <div style="width:10%;float:right;"><progress class="progress" v-bind:class="{'is-danger': (percent >= .75),'is-warning': (percent >= .5 && percent < .75),'is-success': (percent <.5)}" :value=this.percent :max=1>{{percent}}</progress></div>
   </div>`,
@@ -116,7 +116,7 @@ Vue.component("single-issue",{
 
 Vue.component("issue-card",{
   props: ['data'],
-  template: `<div><div style="height: auto; margin: 20px;overflow:hide;" class="notification is-primary">
+  template: `<div><div style="height: auto; margin: 20px;overflow:hide;" class="notification">
   <div style="font-size: 18px;margin-bottom: 10px;" class="repoName">Issues: {{data.Issues.length}} <span> <span style="color:#aaa;">-</span> Open Issues: {{issueData.Open}}</span><span> <span style="color:#aaa;">-</span> Average open time: {{(issueData.AvgDuration/(3600*24)).toFixed(2)}} days</span></div>
   Open:
   <single-issue v-for="val in open" :issue=val :max=issueData.MaxDuration></single-issue>
@@ -225,7 +225,7 @@ Vue.component("repo-info",{
 var timeout = null;
 Vue.component("get-repo",{
   template: `<div v-bind:style=textStyle>
-              <input class="input" style="width:50%;text-align:center;" @keyup=update v-bind:placeholder=repos v-model=textboxText>
+              <input class="input is-large" style="width:50%;text-align:center;" @keyup=update v-bind:placeholder=repos v-model=textboxText>
               </input>
 
               </div>`,
