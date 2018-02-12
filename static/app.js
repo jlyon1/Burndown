@@ -63,7 +63,7 @@ Vue.component('bar-chart', {
 
 Vue.component("chart-card",{
   template: `<div>
-  <div style="margin: 20px;" class="box">
+  <div style="margin: 20px;" class="notification is-primary">
   <span class="repoName">Burndown Chart:</span>
   <bar-chart></bar-chart>
   </div>
@@ -78,7 +78,7 @@ Vue.component("chart-card",{
 
 Vue.component("repo-card",{
   template: `<div><a style="text-decoration:none; color:black;" v-bind:href=data.html_url>
-  <div style="margin: 20px;"  class="box" >
+  <div style="margin: 20px;"  class="notification is-primary" >
   <span class="repoName">{{data.full_name}}</span>
   <img class="image is-64x64 media-right" v-bind:src=data.owner.avatar_url style="float:right;"></img>
   <div><img :src="badge + data.full_name"></img></div>
@@ -116,7 +116,7 @@ Vue.component("single-issue",{
 
 Vue.component("issue-card",{
   props: ['data'],
-  template: `<div><div style="height: auto; margin: 20px;overflow:hide;" class="box">
+  template: `<div><div style="height: auto; margin: 20px;overflow:hide;" class="notification is-primary">
   <div style="font-size: 18px;margin-bottom: 10px;" class="repoName">Issues: {{data.Issues.length}} <span> <span style="color:#aaa;">-</span> Open Issues: {{issueData.Open}}</span><span> <span style="color:#aaa;">-</span> Average open time: {{(issueData.AvgDuration/(3600*24)).toFixed(2)}} days</span></div>
   Open:
   <single-issue v-for="val in open" :issue=val :max=issueData.MaxDuration></single-issue>
